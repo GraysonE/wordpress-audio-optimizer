@@ -1,3 +1,9 @@
+#### 1.1.2 (2020-08-25)
+
+##### Bug Fixes
+
+*  Default 16 bit depth broke the converter so I removed that line from the CLI command. (19e4f273)
+
 #### 1.1.1 (2020-08-19)
 
 ##### New Features
