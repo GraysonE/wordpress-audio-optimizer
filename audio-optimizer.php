@@ -5,7 +5,7 @@ namespace AudioOptimizer;
 /*
 Plugin Name: Audio Optimizer
 Description: Converts audio files from WAV to MP3
-Version: 1.1.2
+Version: 1.1.4
 Author: Ryan Hellyer, Grayson Erhard
 */
 
@@ -33,15 +33,17 @@ function convert($data)
         return $data;
     }
 
-    $command = 'ffmpeg -i '.$refactored_data['old_file'];
+    $command = 'ffmpeg -i '.$refactored_data['old_file']; // i = input url, y = overwrite output file without asking.
     $command .= ' -b:a '.$bit_rate;
     $command .= ' -sample_rate '.$sample_rate;
 //	$command .= ' -sample_fmt ' . $bit_depth;
-    $command .= ' '.$refactored_data['file'];
+    $command .= ' -y '.$refactored_data['file'];
+    // Move to background process. Breaks upload sometimes if the application isn't programmed with this in mind.
+//    $command .= ' & ';
 
-    $result = shell_exec($command);
+    $safe_command = escapeshellcmd($command);
+    exec($safe_command, $output, $result);
 
-    // TODO: if result is successful.
     unlink($refactored_data['old_file']); // Delete old file.
 
     return $refactored_data; // Return to WordPress Media.
@@ -69,7 +71,7 @@ function refactor($data)
     $refactored_data['file'] = increment_file_name($path_parts['dirname'],
         $refactored_data['file_name'].'.'.$desired_ext);
     $refactored_data['url']  = preg_replace('?'.$refactored_data['file_name'].'.'.$refactored_data['ext'].'?',
-        $refactored_data['file_name'].'.'.$desired_ext, $data['url']);
+        $refactored_data['file_name'].'.'.$desired_ext, $data['url']); // TODO: this is appending an underscore
     $refactored_data['type'] = 'audio/'.$desired_ext;
 
     return $refactored_data;
